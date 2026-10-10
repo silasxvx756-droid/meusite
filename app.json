@@ -53,7 +53,12 @@
           "cameraPermission": false
         }
       ],
-      "expo-mail-composer"
+      "expo-mail-composer",
+      "expo-font",
+      "@react-native-community/datetimepicker",
+      "expo-image",
+      "expo-secure-store",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,

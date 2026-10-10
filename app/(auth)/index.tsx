@@ -10,8 +10,24 @@ import {
   Animated,
   Easing,
   Image,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+
+// Injeta estilo global no navegador para remover margens e evitar fundo branco no bounce/scroll da Vercel
+if (Platform.OS === "web" && typeof document !== "undefined") {
+  const style = document.createElement("style");
+  style.textContent = `
+    html, body, #root {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-color: transparent !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 const WHATSAPP = "557382372249";
 
@@ -30,6 +46,11 @@ const abrirWhatsApp = () => {
 ========================================================= */
 
 function AnimatedLogo({ isFooter = false, isMobile = false }: { isFooter?: boolean; isMobile?: boolean }) {
+  // Se for o rodapé e estiver no mobile, não exibe a logo
+  if (isFooter && isMobile) {
+    return null;
+  }
+
   const [hovered, setHovered] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
@@ -59,6 +80,7 @@ function AnimatedLogo({ isFooter = false, isMobile = false }: { isFooter?: boole
           opacity,
         },
         isFooter && styles.footerLogoContainer,
+        isMobile && !isFooter && styles.mobileLogoContainer,
       ]}
       {...({
         onMouseEnter: () => setHovered(true),
@@ -69,7 +91,8 @@ function AnimatedLogo({ isFooter = false, isMobile = false }: { isFooter?: boole
         source={require("../../assets/images/aaa.png")}
         style={[
           styles.logoImage,
-          isFooter && (isMobile ? styles.footerLogoImageMobile : styles.footerLogoImage),
+          isFooter && styles.footerLogoImage,
+          isMobile && !isFooter && styles.mobileLogoImage,
         ]}
         resizeMode="contain"
         accessibilityLabel="Logo Conect Designer"
@@ -241,6 +264,10 @@ function AnimatedHeaderButton({
   onPress: () => void;
   isMobile: boolean;
 }) {
+  if (isMobile) {
+    return null;
+  }
+
   const [hovered, setHovered] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
@@ -308,7 +335,6 @@ function AnimatedHeaderButton({
     <Animated.View
       style={[
         styles.headerButtonWrapper,
-        isMobile && styles.headerButtonWrapperMobile,
         {
           transform: [{ scale }],
           shadowOpacity,
@@ -319,7 +345,7 @@ function AnimatedHeaderButton({
       onMouseLeave={() => setHovered(false)}
     >
       <TouchableOpacity
-        style={[styles.headerButton, isMobile && styles.headerButtonMobile]}
+        style={styles.headerButton}
         onPress={onPress}
         activeOpacity={0.85}
       >
@@ -336,7 +362,7 @@ function AnimatedHeaderButton({
             },
           ]}
         />
-        <Text style={[styles.headerButtonText, isMobile && styles.headerButtonTextMobile]}>Ver oferta</Text>
+        <Text style={styles.headerButtonText}>Ver oferta</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -634,13 +660,13 @@ export default function LandingPage() {
       style={styles.page}
     >
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { minHeight: "100%" }]}
         showsVerticalScrollIndicator={false}
       >
         {/* HEADER */}
         <View style={styles.header}>
           <View style={[styles.headerInner, isMobile && styles.headerInnerMobile]}>
-            <AnimatedLogo />
+            <AnimatedLogo isMobile={isMobile} />
             <AnimatedHeaderButton onPress={abrirWhatsApp} isMobile={isMobile} />
           </View>
         </View>
@@ -648,7 +674,7 @@ export default function LandingPage() {
         {/* HERO */}
         <View style={[styles.hero, isMobile && styles.heroMobile]}>
           <View style={styles.heroInner}>
-            <View style={styles.specialTag}>
+            <View style={[styles.specialTag, isMobile && styles.specialTagMobile]}>
               <PulsingDot />
               <Text style={styles.specialTagText}>OFERTA ESPECIAL</Text>
             </View>
@@ -823,9 +849,11 @@ export default function LandingPage() {
         <View style={[styles.footer, isMobile && styles.footerMobile]}>
           <View style={styles.footerInner}>
             <AnimatedLogo isFooter={true} isMobile={isMobile} />
-            <View style={styles.footerInfo}>
-              <Text style={styles.footerCopyright}>© 2026 • Todos os direitos reservados</Text>
-            </View>
+            {!isMobile && (
+              <View style={[styles.footerInfo, isMobile && styles.footerInfoMobile]}>
+                <Text style={styles.footerCopyright}>© 2026 • Todos os direitos reservados</Text>
+              </View>
+            )}
           </View>
         </View>
       </ScrollView>
@@ -1246,17 +1274,29 @@ const styles = StyleSheet.create({
     paddingLeft: 0,
     paddingRight: 35,
   },
-  headerInnerMobile: { paddingLeft: 0, paddingRight: 15 },
+  headerInnerMobile: { 
+    justifyContent: "center", 
+    paddingRight: 0,
+    paddingLeft: 0,
+  },
   logoImage: { width: 420, height: 130, marginLeft: -120 },
+  mobileLogoContainer: { 
+    marginLeft: 0, 
+    alignItems: "center", 
+    justifyContent: "center",
+    width: "100%",
+  },
+  mobileLogoImage: { 
+    width: 240, 
+    height: 80, 
+    marginLeft: 0,
+  },
 
   headerButtonWrapper: {
     borderRadius: 14,
     marginRight: 16,
     shadowColor: "#18e3a4",
     elevation: 7,
-  },
-  headerButtonWrapperMobile: {
-    marginRight: 0,
   },
   headerButton: {
     backgroundColor: "#18e3a4",
@@ -1266,11 +1306,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-  },
-  headerButtonMobile: {
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-    borderRadius: 12,
   },
   headerButtonGlow: {
     position: "absolute",
@@ -1282,7 +1317,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   headerButtonText: { color: "#03100c", fontSize: 17, fontWeight: "900", zIndex: 2 },
-  headerButtonTextMobile: { fontSize: 14 },
 
   hero: {
     width: "100%",
@@ -1305,6 +1339,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+  },
+  specialTagMobile: {
+    marginBottom: 12,
   },
   specialTagText: { color: "#13e4a3", fontSize: 14, fontWeight: "900" },
   pulsingDot: {
@@ -1330,7 +1367,7 @@ const styles = StyleSheet.create({
   },
   heroTitleSecond: { marginTop: 0 },
   heroPriceTitleSameSize: { marginTop: 8 },
-  heroTitleMobile: { fontSize: 28, lineHeight: 32, letterSpacing: -1, marginTop: 17 },
+  heroTitleMobile: { fontSize: 26, lineHeight: 30, letterSpacing: -1, marginTop: 10 },
   heroTitleTablet: { fontSize: 46, lineHeight: 50 },
   yellow: { color: "#ffe500" },
 
@@ -1342,7 +1379,7 @@ const styles = StyleSheet.create({
     maxWidth: 900,
     marginTop: 23,
   },
-  heroDescriptionMobile: { fontSize: 14, lineHeight: 22, maxWidth: 350, marginTop: 18 },
+  heroDescriptionMobile: { fontSize: 14, lineHeight: 22, maxWidth: 350, marginTop: 14 },
 
   heroButtonWrapper: {
     minWidth: 405,
@@ -1514,12 +1551,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   footerMobile: {
-    height: 140,
+    height: 70,
+    justifyContent: "center",
+    paddingBottom: 0,
   },
   footerInner: { width: "100%", height: "100%", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 20 },
   footerLogoContainer: { alignItems: "center", justifyContent: "center", marginTop: -32 },
   footerLogoImage: { marginLeft: 0, width: 580, height: 180 },
-  footerLogoImageMobile: { marginLeft: 0, width: 280, height: 90, marginTop: 15 },
-  footerInfo: { alignItems: "center", marginTop: -20 },
+  footerInfo: { alignItems: "center", marginTop: -25 },
+  footerInfoMobile: { marginTop: 0 },
   footerCopyright: { color: "#414e62", fontSize: 12, textAlign: "center", marginTop: 0 },
 });
