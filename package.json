@@ -11,7 +11,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "dev": "nodemon server.js",
-    "backend": "node server.js"
+    "backend": "node server.js",
+    "vercel-build": "npx expo export --platform web"
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.8",
