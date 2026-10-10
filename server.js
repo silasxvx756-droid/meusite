@@ -7,8 +7,6 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
 import fetch from "node-fetch";
-import path from "path";
-import { fileURLToPath } from "url";
 
 dotenv.config();
 
@@ -16,9 +14,6 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /* ================= CLOUDINARY ================= */
 cloudinary.config({
@@ -180,6 +175,12 @@ const jobSchema = new mongoose.Schema(
 );
 
 const Job = mongoose.models.Job || mongoose.model("Job", jobSchema);
+
+/* ================= ROOT ================= */
+
+app.get("/", (req, res) => {
+  res.send("Servidor rodando 🚀");
+});
 
 /* ================= HELPERS ================= */
 
@@ -432,13 +433,6 @@ app.delete("/jobs/:id", async (req, res) => {
       error: err.message,
     });
   }
-});
-
-/* ================= FRONTEND ESTÁTICO (EXPO) ================= */
-app.use(express.static(path.join(__dirname, "dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 /* ================= EXPORT ================= */
