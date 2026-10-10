@@ -29,7 +29,7 @@ const abrirWhatsApp = () => {
    LOGO COM EFEITO HOVER
 ========================================================= */
 
-function AnimatedLogo({ isFooter = false }: { isFooter?: boolean }) {
+function AnimatedLogo({ isFooter = false, isMobile = false }: { isFooter?: boolean; isMobile?: boolean }) {
   const [hovered, setHovered] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
@@ -67,7 +67,10 @@ function AnimatedLogo({ isFooter = false }: { isFooter?: boolean }) {
     >
       <Image
         source={require("../../assets/images/aaa.png")}
-        style={[styles.logoImage, isFooter && styles.footerLogoImage]}
+        style={[
+          styles.logoImage,
+          isFooter && (isMobile ? styles.footerLogoImageMobile : styles.footerLogoImage),
+        ]}
         resizeMode="contain"
         accessibilityLabel="Logo Conect Designer"
       />
@@ -233,8 +236,10 @@ function PulsingDot() {
 
 function AnimatedHeaderButton({
   onPress,
+  isMobile,
 }: {
   onPress: () => void;
+  isMobile: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
@@ -303,6 +308,7 @@ function AnimatedHeaderButton({
     <Animated.View
       style={[
         styles.headerButtonWrapper,
+        isMobile && styles.headerButtonWrapperMobile,
         {
           transform: [{ scale }],
           shadowOpacity,
@@ -313,7 +319,7 @@ function AnimatedHeaderButton({
       onMouseLeave={() => setHovered(false)}
     >
       <TouchableOpacity
-        style={styles.headerButton}
+        style={[styles.headerButton, isMobile && styles.headerButtonMobile]}
         onPress={onPress}
         activeOpacity={0.85}
       >
@@ -330,7 +336,7 @@ function AnimatedHeaderButton({
             },
           ]}
         />
-        <Text style={styles.headerButtonText}>Ver oferta</Text>
+        <Text style={[styles.headerButtonText, isMobile && styles.headerButtonTextMobile]}>Ver oferta</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -342,8 +348,10 @@ function AnimatedHeaderButton({
 
 function AnimatedHeroButton({
   onPress,
+  isMobile,
 }: {
   onPress: () => void;
+  isMobile: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
@@ -412,6 +420,7 @@ function AnimatedHeroButton({
     <Animated.View
       style={[
         styles.heroButtonWrapper,
+        isMobile && styles.heroButtonWrapperMobile,
         {
           transform: [{ scale }],
           shadowOpacity,
@@ -422,7 +431,7 @@ function AnimatedHeroButton({
       onMouseLeave={() => setHovered(false)}
     >
       <TouchableOpacity
-        style={styles.heroButton}
+        style={[styles.heroButton, isMobile && styles.heroButtonMobile]}
         onPress={onPress}
         activeOpacity={0.9}
       >
@@ -632,7 +641,7 @@ export default function LandingPage() {
         <View style={styles.header}>
           <View style={[styles.headerInner, isMobile && styles.headerInnerMobile]}>
             <AnimatedLogo />
-            <AnimatedHeaderButton onPress={abrirWhatsApp} />
+            <AnimatedHeaderButton onPress={abrirWhatsApp} isMobile={isMobile} />
           </View>
         </View>
 
@@ -685,7 +694,7 @@ export default function LandingPage() {
               Freepik, Envato, Designi, Shutterstock, Motion Array, Storyblocks, Adobe Stock e dezenas de outros bancos por apenas R$ 10 ao ano, com teste grátis.
             </Text>
 
-            <AnimatedHeroButton onPress={abrirWhatsApp} />
+            <AnimatedHeroButton onPress={abrirWhatsApp} isMobile={isMobile} />
 
             <Text style={styles.heroDisclaimer}>
               Freepik • Shutterstock • Envato • Designi • Motion Array • Storyblocks e muito mais
@@ -811,9 +820,9 @@ export default function LandingPage() {
         </View>
 
         {/* FOOTER */}
-        <View style={styles.footer}>
+        <View style={[styles.footer, isMobile && styles.footerMobile]}>
           <View style={styles.footerInner}>
-            <AnimatedLogo isFooter={true} />
+            <AnimatedLogo isFooter={true} isMobile={isMobile} />
             <View style={styles.footerInfo}>
               <Text style={styles.footerCopyright}>© 2026 • Todos os direitos reservados</Text>
             </View>
@@ -1237,7 +1246,7 @@ const styles = StyleSheet.create({
     paddingLeft: 0,
     paddingRight: 35,
   },
-  headerInnerMobile: { paddingLeft: 0, paddingRight: 20 },
+  headerInnerMobile: { paddingLeft: 0, paddingRight: 15 },
   logoImage: { width: 420, height: 130, marginLeft: -120 },
 
   headerButtonWrapper: {
@@ -1245,6 +1254,9 @@ const styles = StyleSheet.create({
     marginRight: 16,
     shadowColor: "#18e3a4",
     elevation: 7,
+  },
+  headerButtonWrapperMobile: {
+    marginRight: 0,
   },
   headerButton: {
     backgroundColor: "#18e3a4",
@@ -1254,6 +1266,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+  },
+  headerButtonMobile: {
+    paddingHorizontal: 16,
+    paddingVertical: 11,
+    borderRadius: 12,
   },
   headerButtonGlow: {
     position: "absolute",
@@ -1265,6 +1282,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   headerButtonText: { color: "#03100c", fontSize: 17, fontWeight: "900", zIndex: 2 },
+  headerButtonTextMobile: { fontSize: 14 },
 
   hero: {
     width: "100%",
@@ -1333,6 +1351,13 @@ const styles = StyleSheet.create({
     shadowColor: "#ffe500",
     elevation: 10,
   },
+  heroButtonWrapperMobile: {
+    minWidth: "auto",
+    width: "100%",
+    maxWidth: 340,
+    paddingHorizontal: 15,
+    alignSelf: "center",
+  },
   heroButton: {
     backgroundColor: "#ffd500",
     paddingHorizontal: 35,
@@ -1342,6 +1367,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+  },
+  heroButtonMobile: {
+    minWidth: "auto",
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   heroButtonGlow: {
     position: "absolute",
@@ -1482,9 +1513,13 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
   },
+  footerMobile: {
+    height: 140,
+  },
   footerInner: { width: "100%", height: "100%", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingHorizontal: 20 },
   footerLogoContainer: { alignItems: "center", justifyContent: "center", marginTop: -32 },
   footerLogoImage: { marginLeft: 0, width: 580, height: 180 },
-  footerInfo: { alignItems: "center", marginTop: -32 },
+  footerLogoImageMobile: { marginLeft: 0, width: 280, height: 90, marginTop: 15 },
+  footerInfo: { alignItems: "center", marginTop: -20 },
   footerCopyright: { color: "#414e62", fontSize: 12, textAlign: "center", marginTop: 0 },
 });
