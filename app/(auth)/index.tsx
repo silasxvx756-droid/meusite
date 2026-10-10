@@ -17,7 +17,7 @@ const WHATSAPP = "557382372249";
 
 const abrirWhatsApp = () => {
   const mensagem = encodeURIComponent(
-    "Olá! Tenho interesse no acesso completo a todas as plataformas (Freepik, Envato, Designi, Shutterstock, Motion Array e todas as demais) por R$ 10 ao ano e gostaria de saber sobre o teste grátis."
+    "Olá! Sou designer gráfico e gostaria de conhecer sua plataforma. Seria possível realizar um teste grátis?"
   );
 
   Linking.openURL(
