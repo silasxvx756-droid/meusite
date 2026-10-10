@@ -5,12 +5,5 @@
       "src": "server.js",
       "use": "@vercel/node"
     }
-  ],
-  "routes": [
-    { "src": "/posts(.*)", "dest": "server.js" },
-    { "src": "/jobs(.*)", "dest": "server.js" },
-    { "src": "/assets/(.*)", "dest": "/dist/assets/$1" },
-    { "src": "/(.*)\\.(js|css|png|jpg|json|ico|svg)", "dest": "/dist/$1.$2" },
-    { "src": "/(.*)", "dest": "/dist/index.html" }
   ]
 }
